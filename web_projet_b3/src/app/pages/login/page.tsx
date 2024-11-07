@@ -20,7 +20,6 @@ const createUser = async (firstname: string, lastname: string, email: string, pa
 
 
 export default function Page() {
-    // Create separate refs for each input and icon pair
     const inputPasswordRef = useRef<HTMLInputElement>(null);
     const iconPasswordRef = useRef<HTMLImageElement>(null);
     const inputConfirmPasswordRef = useRef<HTMLInputElement>(null);
@@ -48,11 +47,9 @@ export default function Page() {
         const handlePasswordClick = () => togglePasswordVisibility(inputPassword, iconPassword);
         const handleConfirmPasswordClick = () => togglePasswordVisibility(inputConfirmPassword, iconConfirmPassword);
 
-        // Add event listeners to the respective icons
         iconPassword.addEventListener('click', handlePasswordClick);
         iconConfirmPassword.addEventListener('click', handleConfirmPasswordClick);
 
-        // Cleanup event listeners on unmount
         return () => {
             iconPassword.removeEventListener('click', handlePasswordClick);
             iconConfirmPassword.removeEventListener('click', handleConfirmPasswordClick);

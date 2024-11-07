@@ -4,30 +4,25 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 
 export default function Home() {
-  const [users, setUsers] = useState<any[]>([]);  // Stocke les utilisateurs
-  const [error, setError] = useState<string | null>(null); // Pour gérer les erreurs
+  const [users, setUsers] = useState<any[]>([]);
+  const [error, setError] = useState<string | null>(null); 
 
   useEffect(() => {
-    // Fonction pour récupérer les utilisateurs
     const fetchData = async () => {
       try {
-        // Appel à l'API
         const response = await axios.get('/api/users/getuser');
-        
-        // Vérifiez la structure des données renvoyées par l'API
-        setUsers(response.data); // Réponse attendue: un tableau d'utilisateurs
+                setUsers(response.data);
       } catch (error) {
-        // Gérer les erreurs d'appel API
         console.error('Erreur lors de la récupération des données:', error);
         setError('Erreur lors de la récupération des utilisateurs');
       }
     };
 
-    fetchData(); // Appel de la fonction
-  }, []); // Le tableau vide [] assure que ça ne s'exécute qu'une seule fois au montage
+    fetchData(); 
+  }, []); 
 
   if (error) {
-    return <div>{error}</div>; // Si erreur, affiche le message d'erreur
+    return <div>{error}</div>; 
   }
 
   return (
