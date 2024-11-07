@@ -10,12 +10,12 @@
 }
 
 .input__field:placeholder-shown ~ .input__label {
-  @apply text-secondary-input text-base cursor-text top-5;
+  @apply text-secondary-input text-base cursor-text top-0;
 }
 
 label,
 .input__field:focus ~ .input__label {
-  @apply absolute top-0 block text-sm left-[-0.0625rem] text-secondary-input transition-all;
+  @apply absolute top-[-0.875rem] block text-sm left-[-0.0625rem] text-secondary-input transition-all;
 }
 
 .input__field:focus ~ .input__label {

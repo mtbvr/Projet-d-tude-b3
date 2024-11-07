@@ -12,7 +12,7 @@ export default function Home() {
     const fetchData = async () => {
       try {
         // Appel à l'API
-        const response = await axios.get('/api/getuser');
+        const response = await axios.get('/api/users/getuser');
         
         // Vérifiez la structure des données renvoyées par l'API
         setUsers(response.data); // Réponse attendue: un tableau d'utilisateurs
