@@ -1,22 +1,45 @@
-import { getUsers } from "./api/selectuser/route";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+'use client';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
 
-export default async function Home() {
-  const users = await getUsers(); // Récupère tous les utilisateurs
+export default function Home() {
+  const [users, setUsers] = useState<any[]>([]);  // Stocke les utilisateurs
+  const [error, setError] = useState<string | null>(null); // Pour gérer les erreurs
 
-  // Si la liste des utilisateurs est vide
-  if (users.length === 0) {
-    return <div>No users found</div>;
+  useEffect(() => {
+    // Fonction pour récupérer les utilisateurs
+    const fetchData = async () => {
+      try {
+        // Appel à l'API
+        const response = await axios.get('/api/getuser');
+        
+        // Vérifiez la structure des données renvoyées par l'API
+        setUsers(response.data); // Réponse attendue: un tableau d'utilisateurs
+      } catch (error) {
+        // Gérer les erreurs d'appel API
+        console.error('Erreur lors de la récupération des données:', error);
+        setError('Erreur lors de la récupération des utilisateurs');
+      }
+    };
+
+    fetchData(); // Appel de la fonction
+  }, []); // Le tableau vide [] assure que ça ne s'exécute qu'une seule fois au montage
+
+  if (error) {
+    return <div>{error}</div>; // Si erreur, affiche le message d'erreur
   }
 
   return (
     <div>
-      {/* Affiche chaque utilisateur avec son nom et son mot de passe */}
-      {users.map((user, index) => (
-        <div key={index} className="flex flex-row gap-6">
-          <p>Name: {user.name}</p>
-          <p>Password: {user.password}</p>
-        </div>
-      ))}
+      <h1>Liste des utilisateurs</h1>
+      <ul>
+        {users.map((user) => (
+          <li key={user.id}>
+            {user.name} - {user.firstname} - {user.email}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
