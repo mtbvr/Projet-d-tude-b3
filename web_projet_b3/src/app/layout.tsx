@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Header from "../components/Header"
 import Footer from "../components/Footer"
+import Provider from "../components/Provider"
 
 export const metadata: Metadata = {
   title: "Cyna",
@@ -15,11 +16,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr">
+      <Provider>
       <body>
         <Header />
         {children}
         <Footer />
       </body>
+      </Provider>
     </html>
   );
 }

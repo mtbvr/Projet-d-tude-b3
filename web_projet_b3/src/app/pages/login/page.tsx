@@ -4,6 +4,7 @@ import axios from 'axios';
 import Image from 'next/image'
 import { emitWarning } from 'process';
 import React, { useEffect, useRef } from 'react';
+import { signIn } from 'next-auth/react'; 
 
 
 const regex2char = /^[a-zA-Z0-9]{2,}$/;
@@ -19,10 +20,23 @@ const createUser = async (firstname: string, lastname: string, email: string, pa
     }
 }
 
+
+
 const connectUser = async (email: string, password: string) => {
     try {
         const response = await axios.post('/api/users/loguser', { email, password });
         console.log('Utilisateur connecté avec succès:', response.data);
+        const result = await signIn('credentials', {
+            redirect: false,
+            email,
+            password,
+        });
+
+        if (result?.error) {
+            console.error('NextAuth error:', result.error);
+            return { success: false, error: result.error };
+        }
+
         return { success: true };
     } catch (error: unknown) {
         console.error('Erreur lors de la connexion de l\'utilisateur:', error);
@@ -133,6 +147,19 @@ export default function Page() {
             warningpdconf?.classList.add("hidden");
         }
         const newUser = await createUser(firstname, lastname, email, password);
+
+        const result = await signIn('credentials', {
+            redirect: false,
+            email,
+            password,
+        });
+    
+        if (result?.error) {
+            console.error('Login failed after registration:', result.error);
+        } else {
+            console.log('User signed in successfully');
+            window.location.href = '/';
+        }
     }
 
     const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -155,6 +182,8 @@ export default function Page() {
             } else {
                 console.error('Erreur inattendue:', result.error);
             }
+        } else {
+            window.location.href = '/';
         }
     }
     
