@@ -12,6 +12,7 @@ export async function POST(request: NextRequest) {
     if (!firstname || !lastname || !email || !password) {
       return new Response(JSON.stringify({ error: 'Tous les champs sont requis' }), { status: 400 });
     }
+    
     const result = await sql`
       INSERT INTO "User" (firstname, lastname, email, password)
       VALUES (${firstname}, ${lastname}, ${email}, ${hashedPassword})
