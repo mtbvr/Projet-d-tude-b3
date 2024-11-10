@@ -48,6 +48,14 @@ const connectUser = async (email: string, password: string) => {
     }
 }
 
+async function sendEmail() {
+  try {
+    const response = await axios.post('/api/mail/send', {firstname:"matéo",email:"mateobouvier10@gmail.com",verificationToken:"test"});
+    console.log(response.data);
+  } catch (error) {
+    console.error('Error sending email:', error);
+  }
+}
 
 
 export default function Page() {
@@ -158,7 +166,6 @@ export default function Page() {
             console.error('Login failed after registration:', result.error);
         } else {
             console.log('User signed in successfully');
-            window.location.href = '/';
         }
     }
 
@@ -183,7 +190,6 @@ export default function Page() {
                 console.error('Erreur inattendue:', result.error);
             }
         } else {
-            window.location.href = '/';
         }
     }
     
@@ -212,6 +218,7 @@ export default function Page() {
                     </button>
                 </form>
             </section>
+            <button onClick={sendEmail}>Test mail</button>
             <section>
                 <h2>Inscription</h2>
                 <form action="" onSubmit={handleSignin}>
