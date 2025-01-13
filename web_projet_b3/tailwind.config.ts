@@ -20,6 +20,9 @@ const config: Config = {
         "text-input": "#212121",
         "hover-input": "#F5F5F5",
       },
+      boxShadow: {
+        header: '0px 4px 4px 0px rgba(0, 0, 0, 0.25)',
+      },
     },
   },
   plugins: [],

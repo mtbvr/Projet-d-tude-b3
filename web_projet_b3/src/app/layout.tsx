@@ -17,7 +17,7 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <Provider>
-      <body>
+      <body className="bg-custom-blue">
         <Header />
         {children}
         <Footer />

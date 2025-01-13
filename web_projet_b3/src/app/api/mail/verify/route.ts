@@ -4,9 +4,10 @@ import { sql } from '@vercel/postgres';
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const token = searchParams.get('token');
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
   if (!token) {
-    return NextResponse.json({ error: 'Invalid token' }, { status: 400 });
+    return NextResponse.redirect(`${baseUrl}/pages/mail?error=invalid-token`);
   }
 
   try {
@@ -18,12 +19,12 @@ export async function GET(request: NextRequest) {
     `;
 
     if (result.rowCount === 0) {
-      return NextResponse.json({ error: 'Invalid or expired token' }, { status: 400 });
+      return NextResponse.redirect(`${baseUrl}/pages/mail?error=expired-token`);
     }
-
-    return NextResponse.json({ message: 'Email successfully verified' });
+    
+    return NextResponse.redirect(`${baseUrl}/pages/mail?success=true`);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
-    return NextResponse.json({ error: `Internal server error: ${error}` }, { status: 500 });
+    return NextResponse.redirect(`${baseUrl}/pages/mail?error=internal`,);
   }
 }
