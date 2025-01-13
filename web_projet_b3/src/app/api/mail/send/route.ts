@@ -14,9 +14,9 @@ export async function POST(request: NextRequest) {
     const verificationUrl = `${baseUrl}/api/mail/verify?token=${verificationToken}`
 
     const { data, error } = await resend.emails.send({
-      from: 'Acme <noreply@mateo-bouvier.com>',
+      from: 'Cyna <noreply@mateo-bouvier.com>',
       to: [email],
-      subject: 'Hello world',
+      subject: 'Email verification',
       react: EmailTemplate({ firstName: firstname , verificationUrl: verificationUrl}),
     });
 
