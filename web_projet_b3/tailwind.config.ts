@@ -14,6 +14,7 @@ const config: Config = {
         "custom-blue": "#302082",
         "custom-green": "#02FF1E",
         "button-color": "#611DF7",
+        "custom-gray": 'rgba(114, 114, 114, 1)',
 
         "primary-input": "#007FFF",
         "secondary-input": "#6F7E8C",
