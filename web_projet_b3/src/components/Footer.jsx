@@ -1,7 +1,7 @@
 const Footer = () => {
     return(
-        <footer>
-            <p className="text-custom-orange">Ceci est un footer</p>
+        <footer className="bg-black">
+            <p className="text-custom-orange p-[20px]">blablabla les truc légaux patati patata</p>
         </footer>
     )
 }
