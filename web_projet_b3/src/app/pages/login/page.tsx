@@ -18,6 +18,17 @@ const createUser = async (firstname: string, lastname: string, email: string, pa
     }
 }
 
+const userExist = async (email: string) => {
+    try {
+        const response = await axios.post('/api/users/userexist', { email });
+        return response.data.exists;
+    } catch (error) {
+        console.error('Erreur lors de la vérification de l\'utilisateur:', error);
+        return false;
+    }
+};
+
+
 const connectUser = async (email: string, password: string) => {
     try {
         const response = await axios.post('/api/users/loguser', { email, password });
@@ -78,6 +89,7 @@ export default function Page() {
         const warningpd = document.getElementById("passwordwarning");
         const confirmPassword = (document.getElementById("passwordConfirmsignin") as HTMLInputElement)?.value;
         const warningpdconf = document.getElementById("passwordconfirmwarning");
+        const maildupli = document.getElementById('emailwarningduplicate');
 
         if (!regex2char.test(firstname)) {
             warningname?.classList.remove("hidden");
@@ -118,19 +130,28 @@ export default function Page() {
         } else {
             warningpdconf?.classList.add("hidden");
         }
+        
+        const userVerif = await userExist(email);
 
-
-        const newUser = await createUser(firstname, lastname, email, password);
-        const result = await signIn('credentials', {
-            redirect: false,
-            email,
-            password,
-        });
-
-        if (result?.error) {
-            console.error('Login failed after registration:', result.error);
+        if (userVerif) {
+            console.log("L'utilisateur existe déjà");
+            maildupli?.classList.remove('hidden');
+            (document.getElementById("emailsignin") as HTMLInputElement).value = "";
         } else {
-            console.log('User signed in successfully');
+            console.log("L'utilisateur n'existe pas");
+            maildupli?.classList.add('hidden');
+            const newUser = await createUser(firstname, lastname, email, password);
+            const result = await signIn('credentials', {
+                redirect: false,
+                email,
+                password,
+            });
+    
+            if (result?.error) {
+                console.error('Login failed after registration:', result.error);
+            } else {
+                console.log('User signed in successfully');
+            }
         }
     }, [])
 
@@ -219,6 +240,7 @@ export default function Page() {
                                 <input id="emailsignin" type="email" className="w-full input__field border-0 border-b-2 outline-none text-base text-text-input py-1 pr-8 bg-transparent transition-colors duration-200 border-b-secondary-input" placeholder="Your Email" />
                                 <label htmlFor="emailsignin" className="input__label absolute transition-all" > Email </label>
                                 <span id='emailwarning' className='text-red-error hidden w-full block text-center mt-[8px]'>Veuillez entrer un email valide</span>
+                                <span id='emailwarningduplicate' className='text-red-error hidden w-full block text-center mt-[8px]'>Ce mail est déjà enregistré</span>
                             </div>
                             <div className="relative my-[30px] mx-auto md:w-[400px] w-[80%]">
                                 <input id="passwordsignin" type="password" className="w-full input__field border-0 border-b-2 outline-none text-base text-text-input py-1 pr-8 bg-transparent transition-colors duration-200 border-b-secondary-input" placeholder="Your Password" ref={inputPasswordRef} />
