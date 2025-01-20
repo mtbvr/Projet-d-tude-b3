@@ -11,10 +11,12 @@ export async function POST(request: Request) {
         const existingUser = userResult.rows[0];
 
         const addressResult = await sql`SELECT * FROM "Adresse" WHERE id_user = ${id}`;
+        const paymentResult = await sql`SELECT * FROM "Moyens_paiement" WHERE id_user = ${id}`
 
         const responseData = {
             user: existingUser,
             addresses: addressResult.rows,
+            payment: paymentResult.rows,
         };
 
         return new Response(JSON.stringify(responseData), { status: 200 });

@@ -15,6 +15,15 @@ interface Address {
   id_user: number;
 }
 
+interface Payment {
+    id : number,
+    id_user: number,
+    name: string,
+    number: string,
+    date: Date,
+    cvv: number,
+    default: boolean;
+}
 interface User {
   id: number;
   firstname: string;
@@ -28,6 +37,7 @@ interface User {
 interface UserResponse {
   user: User;
   addresses: Address[];
+  payments: Payment[];
 }
 
 export default function Page() {
@@ -58,15 +68,18 @@ export default function Page() {
 
     return (
         <main>
-            <section>
+            <section className="flex flex-col justify-center items-center my-[20px] gap-[20px]">
                 {userInfo?.user ? (
                     <>
                         {!userInfo.user.isConfirmed ? (
-                            <p>Veuillez confirmer votre email</p>
+                            <article className="bg-white shadow-header rounded-lg p-6 max-w-md w-full text-center">
+                                <p>Veuillez confirmer votre email</p>
+                            </article>
+                            
                         ) : null}
 
-                        <article>
-                            <h2>Info personnelles</h2>
+                        <article className="bg-white shadow-header rounded-lg p-6 max-w-md w-full text-center shadow-header">
+                            <h2 className="text-center font-semibold text-2xl">Info personnelles</h2>
                             <button>Modifier le profil</button>
                             <p>Nom: {userInfo.user.firstname}</p>
                             <p>Prénom: {userInfo.user.lastname}</p>
@@ -74,8 +87,8 @@ export default function Page() {
                             <p>Mot de passe: ************</p> <button>Modifier le mot de passe</button>
                         </article>
                         
-                        <article>
-                            <h2>Adresses :</h2>
+                        <article className="bg-white shadow-header rounded-lg p-6 max-w-md w-full text-center">
+                            <h2 className="text-center font-semibold text-2xl">Adresse</h2>
                             {userInfo.addresses && userInfo.addresses.length > 0 ? (
                                 <ul>
                                     {userInfo.addresses.map(address => (
@@ -88,12 +101,31 @@ export default function Page() {
                             ) : (
                                 <p>Vous n&apos;avez actuellement aucune adresse enregistrée.</p>
                             )}
-                            <button>Ajouter une nouvelle adresse</button>
+                            <button className="md:w-[400px] w-[80%] mt-[12px] btn relative inline-flex items-center justify-start overflow-hidden transition-all bg-button-color rounded hover:bg-button-color group p-2 font-semibold left-1/2 translate-x-[-50%]">
+                                <span className="w-full text-black transition-colors duration-300 ease-in-out group-hover:text-white z-10">
+                                    Ajouter une nouvelle adresse
+                                </span>
+                            </button>
                         </article>
                         
-                        <article>
-                            <h2>Moyens de paiement</h2>
-                            <button>Ajouter un moyen de paiement</button>
+                        <article className="bg-white shadow-header rounded-lg p-6 max-w-md w-full text-center shadow-header">
+                            <h2 className="text-center font-semibold text-2xl">Moyens de paiement</h2>
+                            {userInfo.payments && userInfo.payments.length > 0 ? (
+                                <ul>
+                                    {userInfo.payments.map(payment => (
+                                        <li key={payment.id}>
+                                            <p>{payment.name}</p>
+                                        </li>
+                                    ))}
+                                </ul>
+                            ) : (
+                                <p>Vous n&apos;avez actuellement aucun moyen de paiement enregistré.</p>
+                            )}
+                            <button className="md:w-[400px] w-[80%] mt-[12px] btn relative inline-flex items-center justify-start overflow-hidden transition-all bg-button-color rounded hover:bg-button-color group p-2 font-semibold left-1/2 translate-x-[-50%]">
+                                <span className="w-full text-black transition-colors duration-300 ease-in-out group-hover:text-white z-10">
+                                    Ajouter un moyen de paiement 
+                                </span>
+                            </button>
                         </article>
                     </>
                 ) : (
