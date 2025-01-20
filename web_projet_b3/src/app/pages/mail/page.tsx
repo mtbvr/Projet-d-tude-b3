@@ -35,7 +35,7 @@ const EmailVerification = () => {
   }
 
   return (
-    <div className="flex flex-col justify-center items-center h-screen bg-gray-50">
+    <div className="flex flex-col justify-center items-center">
       <div className="bg-white shadow-lg rounded-lg p-6 max-w-md w-full text-center">
         <h1 className="text-2xl font-bold text-gray-800 mb-4">Email Verification</h1>
         <p className={`text-lg mb-6 ${message.includes('success') ? 'text-green-600' : 'text-red-600'}`}>

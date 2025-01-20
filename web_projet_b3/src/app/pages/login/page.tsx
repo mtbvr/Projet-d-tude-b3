@@ -2,7 +2,7 @@
 'use client'
 import axios from 'axios';
 import Image from 'next/image'
-import { signIn } from 'next-auth/react'; 
+import { signIn, useSession } from 'next-auth/react'; 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 
 const regex2char = /^[a-zA-Z0-9]{2,}$/;
@@ -57,6 +57,12 @@ const connectUser = async (email: string, password: string) => {
 
 export default function Page() {
     const [isSignin, setIsSignin] = useState(true);
+
+    const {data: session} = useSession();
+
+    if (session) {
+        window.location.href = '/pages/account';
+    }
 
     useEffect(() => { 
         if (typeof window !== 'undefined') {
