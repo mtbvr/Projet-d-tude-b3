@@ -1,8 +1,5 @@
 import { sql } from '@vercel/postgres';
 import { NextRequest, NextResponse } from 'next/server';
-import { genSaltSync, hashSync } from 'bcrypt-ts';
-import { v4 as uuidv4 } from 'uuid';
-import axios from 'axios';
 
 export async function POST(request: NextRequest) {
   try {
