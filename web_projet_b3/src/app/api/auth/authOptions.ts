@@ -18,7 +18,7 @@ export const authOptions: NextAuthOptions = {
         }
 
         const result = await sql`
-          SELECT id, firstname, lastname, email, password FROM "User" WHERE email = ${credentials.email};
+          SELECT id, firstname, lastname, email, password, "isAdmin" FROM "User" WHERE email = ${credentials.email};
         `;
 
         if (result.rowCount === 0) {
@@ -37,6 +37,7 @@ export const authOptions: NextAuthOptions = {
           firstname: user.firstname,
           lastname: user.lastname,
           email: user.email,
+          isAdmin: user.isAdmin,
         };
       },
     }),
@@ -47,7 +48,7 @@ export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   debug: process.env.NODE_ENV === 'development',
   callbacks: {
-    async jwt({ token, user }: { token: JWT, user?: User }) {
+    async jwt({ token, user }: { token: JWT & { isAdmin?: boolean }, user?: User }) {
       if (user) {
         return {
           ...token,
@@ -55,16 +56,19 @@ export const authOptions: NextAuthOptions = {
           firstname: user.firstname,
           lastname: user.lastname,
           email: user.email,
+          isAdmin: user.isAdmin,
         };
       }
       return token;
-    },
+    },  
 
-    async session({ session, token }: { session: Session, token: JWT }) {
+    async session({ session, token }: { session: Session & { user: { isAdmin?: boolean } }, token: JWT & { isAdmin?: boolean } }) {
       session.user.id = token.id as string;
       session.user.firstname = token.firstname as string;
       session.user.lastname = token.lastname as string;
       session.user.email = token.email as string;
+      session.user.isAdmin = token.isAdmin as boolean;
+
       return session;
     },
   },
