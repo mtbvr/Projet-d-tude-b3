@@ -70,7 +70,7 @@ export default function Header() {
                                 Setting
                             </Link>
                             <div className='relative bg-custom-gray w-full h-[1px]'></div>
-                            {!session.user?.isAdmin && (
+                            {session.user?.isAdmin && (
                                 <Link
                                     href="/pages/backoffice"
                                     className="block px-4 py-2 text-gray-800 hover:bg-gray-100 flex justify-items-start gap-[10px]"
