@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { sql } from '@vercel/postgres';
+import supabase from '@/supabaseClient'; // Assurez-vous que le chemin est correct
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -11,20 +11,19 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const result = await sql`
-      UPDATE "User"
-      SET "isConfirmed" = TRUE, "verificationToken" = NULL
-      WHERE "verificationToken" = ${token}
-      RETURNING id, email, "isConfirmed";
-    `;
+    const { data, error } = await supabase
+      .from('User')
+      .update({ isConfirmed: true, verificationToken: null })
+      .eq('verificationToken', token)
+      .select('id, email, isConfirmed');
 
-    if (result.rowCount === 0) {
+    if (error || data.length === 0) {
       return NextResponse.redirect(`${baseUrl}/pages/mail?error=expired-token`);
     }
-    
+
     return NextResponse.redirect(`${baseUrl}/pages/mail?success=true`);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
-    return NextResponse.redirect(`${baseUrl}/pages/mail?error=internal`,);
+    return NextResponse.redirect(`${baseUrl}/pages/mail?error=internal`);
   }
 }

@@ -11,9 +11,13 @@ const config: Config = {
       colors: {
         "black": "#000000",
         "custom-orange": "#FFC482",
-        "custom-blue": "#302082",
+        "custom-blue": "#7200FF",
         "custom-green": "#02FF1E",
         "button-color": "#611DF7",
+        "custom-gray": 'rgba(114, 114, 114, 1)',
+        "red-error":"#f53333",
+
+        "component-bg": '#2d1b83',
 
         "primary-input": "#007FFF",
         "secondary-input": "#6F7E8C",
