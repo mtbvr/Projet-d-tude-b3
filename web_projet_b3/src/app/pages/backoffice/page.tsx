@@ -27,9 +27,11 @@ const addCategorie = async (name:string, description:string) => {
 const Page = () => {
     const { data: session } = useSession();
     const [showAddCategorietModal, setShowAddCategorieModal] = useState(false);
+    const [showEditCategorieModal, setShowEditCategorieModal] = useState(false);
     const [categorie, setCategorie] = useState<Categorie[]>([]);
     const [loading, setLoading] = useState(true);
     const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+    const [selectedCategorie, setSelectedCategorie] = useState<Categorie | null>(null);
 
     const handleAddCategorie = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -44,6 +46,36 @@ const Page = () => {
             window.location.reload();
         } else {
             setLoading(false)
+        }
+    }
+
+    const handleEdit = (categorie: Categorie) => {
+        setSelectedCategorie(categorie);
+        setShowEditCategorieModal(true);
+    }
+
+    const handleEditCategorie = async (e: React.FormEvent<HTMLFormElement>, id_categorie:number) =>{
+        e.preventDefault()
+        setLoading(true);
+        try {
+            const name = (document.getElementById('editCategorieName') as HTMLInputElement)?.value;
+            const description = (document.getElementById('editCategorieDescription') as HTMLInputElement)?.value;
+            await axios.post(`/api/products/categorie/edit`, {id_categorie, name, description});
+            window.location.reload();
+        } catch (error) {
+            console.error('Erreur edit de la catégorie:', error);
+            setLoading(false);
+        }
+    }
+
+    const handleDelete = async ( id: number) => {
+        setLoading(true);
+        try {
+            await axios.post(`/api/products/categorie/delete`, {id});
+            window.location.reload();
+        } catch (error) {
+            console.error('Erreur lors de la suppression de la catégorie:', error);
+            setLoading(false);
         }
     }
 
@@ -79,27 +111,28 @@ const Page = () => {
                     <>
                     <article className="bg-white shadow-header rounded-lg p-6 max-w-md w-[80%] text-center shadow-header flex flex-col justify-center">
                         <h2 className="text-center font-semibold text-2xl">Categorie</h2>
-                        <ul>
-                            {categorie.map((element, index) => (
-                            <li 
-                                key={index} 
-                                onMouseEnter={() => setHoveredIndex(index)}
-                                onMouseLeave={() => setHoveredIndex(null)}
-                                className="relative rounded"
-                            >
-                                <strong>Nom :</strong> {element.name}<br />
-                                <strong>Description :</strong> {element.description}
-                                {hoveredIndex === index && (
-                                <div className="rounded absolute w-full h-full top-0 left-0 bg-gray-500 bg-opacity-50">
-                                    <div className="absolute gap-4 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex">
-                                        <FaEdit className="text-blue-500 cursor-pointer bg-gray-200 hover:bg-gray-400 p-1 rounded h-[30px] w-[30px]"  />
-                                        <FaTrash className="text-red-500 cursor-pointer bg-gray-200 hover:bg-gray-400 p-1 rounded h-[30px] w-[30px]"  />
+                        {categorie.length > 0 ? (
+                            <ul>
+                                {categorie.map((element, index) => (
+                                <li 
+                                    key={index} 
+                                    onMouseEnter={() => setHoveredIndex(index)}
+                                    onMouseLeave={() => setHoveredIndex(null)}
+                                    className="relative rounded text-wrap"
+                                >
+                                    <strong>Nom :</strong> {element.name}<br />
+                                    <strong>Description :</strong> {element.description}
+                                    {hoveredIndex === index && (
+                                    <div className="rounded absolute w-full h-full top-0 left-0 bg-gray-500 bg-opacity-50">
+                                        <div className="absolute gap-4 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex">
+                                            <FaEdit className="text-blue-500 cursor-pointer bg-gray-200 hover:bg-gray-400 p-1 rounded h-[30px] w-[30px]" onClick={() => handleEdit(element)} />
+                                            <FaTrash className="text-red-500 cursor-pointer bg-gray-200 hover:bg-gray-400 p-1 rounded h-[30px] w-[30px]" onClick={() => handleDelete(element.id)} />
+                                        </div>
                                     </div>
-                                </div>
-                                )}
-                            </li>
-                            ))}
-                        </ul>
+                                    )}
+                                </li>
+                                ))}
+                            </ul> ) : (<p>Vous n&apos;avez pas de catégories existante</p>)}
                         <div>
                             <button 
                             className="md:w-[400px] w-[80%] mt-[12px] btn relative inline-flex items-center justify-start overflow-hidden transition-all bg-button-color rounded hover:bg-button-color group p-2 font-semibold left-1/2 translate-x-[-50%]" 
@@ -158,6 +191,38 @@ const Page = () => {
                             <span className="sr-only">Loading...</span>
                         </div>
                     </div> 
+                )}
+
+                {/* Edit Categorie Modal */}
+                {showEditCategorieModal && selectedCategorie && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+                        <div className="bg-white p-6 rounded-lg max-w-md w-[80%]">
+                            <h2 className="text-2xl font-semibold mb-4">Edit categorie</h2>
+                            <form onSubmit={(e) => handleEditCategorie(e, selectedCategorie.id)}>
+                                <div className="relative my-[30px] mx-auto md:w-[400px] w-[80%]">
+                                    <input
+                                        id="editCategorieName"
+                                        type="text"
+                                        defaultValue={selectedCategorie.name}
+                                        className="w-full input__field border-0 border-b-2 outline-none text-base text-text-input py-1 pr-8 bg-transparent transition-colors duration-200 border-b-secondary-input"
+                                    />
+                                    <label htmlFor="editCategorieName" className="input__label absolute transition-all">Categorie name</label>
+                                </div>
+                                <div className="relative my-[30px] mx-auto md:w-[400px] w-[80%]">
+                                    <textarea
+                                        id="editCategorieDescription"
+                                        defaultValue={selectedCategorie.description}
+                                        className="w-full input__field border-0 border-b-2 outline-none text-base text-text-input py-1 pr-8 bg-transparent transition-colors duration-200 border-b-secondary-input"
+                                    />
+                                    <label htmlFor="editCategorieDescription" className="input__label absolute transition-all">Categorie description</label>
+                                </div>
+                                <div className="flex justify-end">
+                                    <button type="button" className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded" onClick={() => setShowEditCategorieModal(false)}>Cancel</button>
+                                    <button type="submit" className="bg-button-color hover:text-white text-black font-semibold py-2 px-4 rounded ml-2">Save</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 )}
             </section>
         </main>
