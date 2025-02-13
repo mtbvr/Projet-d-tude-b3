@@ -62,7 +62,7 @@ const Footer = () => {
                         </ul>
                     </div>
                 </div>
-                <div className="text-center opacity-75 mt-8">
+                <div className="text-center mt-8">
                     <p>© 2025 - All rights reserved</p>
                 </div>
             </div>

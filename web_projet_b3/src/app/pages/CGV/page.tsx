@@ -11,7 +11,7 @@ export default function CGV(){
 
             <div className="mb-6">
             <p className="leading-relaxed">
-                Les présentes Conditions Générales de Vente (CGV) régissent les relations contractuelles entre la société [Nom de votre entreprise] (ci-après "nous", "notre", "le vendeur") et toute personne physique ou morale souhaitant effectuer un achat via le site [Nom du site] (ci-après "le Client"). Toute commande passée sur le Site implique l'acceptation sans réserve des présentes CGV.
+                Les présentes Conditions Générales de Vente (CGV) régissent les relations contractuelles entre la société [Nom de votre entreprise] (ci-après &quot;nous&quot;, &quot;notre&quot;, &quot;le vendeur&quot;) et toute personne physique ou morale souhaitant effectuer un achat via le site [Nom du site] (ci-après &quot;le Client&quot;). Toute commande passée sur le Site implique l&apos;acceptation sans réserve des présentes CGV.
             </p>
             </div>
 
@@ -26,7 +26,7 @@ export default function CGV(){
             <h2 className="text-2xl font-semibold mb-2">2. Commande</h2>
             <p className="leading-relaxed">
                 Procédure de commande : La commande est effectuée en ligne via le Site. Le Client sélectionne les produits ou services souhaités, puis valide sa commande après avoir pris connaissance du récapitulatif de sa commande et des prix.<br />
-                Confirmation de commande : Après validation de la commande, le Client recevra une confirmation par email, récapitulant l’ensemble des produits ou services commandés, le montant total, ainsi que le mode de livraison ou de prestation choisi.
+                Confirmation de commande : Après validation de la commande, le Client recevra une confirmation par email, récapitulant l&apos;ensemble des produits ou services commandés, le montant total, ainsi que le mode de livraison ou de prestation choisi.
             </p>
             </div>
 
@@ -52,7 +52,7 @@ export default function CGV(){
             <div className="mb-6">
             <h2 className="text-2xl font-semibold mb-2">5. Livraison</h2>
             <p className="leading-relaxed">
-                Délai de livraison : Les produits sont livrés à l'adresse de livraison renseignée par le Client lors de la commande. Le délai de livraison estimé sera précisé lors de la validation de la commande, en fonction du mode de livraison choisi.<br />
+                Délai de livraison : Les produits sont livrés à l&apos;adresse de livraison renseignée par le Client lors de la commande. Le délai de livraison estimé sera précisé lors de la validation de la commande, en fonction du mode de livraison choisi.<br />
                 Frais de livraison : Les frais de livraison sont à la charge du Client, sauf indication contraire lors de la commande ou selon des promotions spécifiques.<br />
                 En cas de retard de livraison, nous nous engageons à informer le Client dans les meilleurs délais.
             </p>
@@ -61,15 +61,15 @@ export default function CGV(){
             <div className="mb-6">
             <h2 className="text-2xl font-semibold mb-2">6. Droit de rétractation</h2>
             <p className="leading-relaxed">
-                Conformément à la législation en vigueur, le Client bénéficie d’un droit de rétractation de 14 jours à compter de la réception des produits, sans avoir à justifier de motifs ni à payer de pénalités. Pour exercer ce droit, le Client doit nous notifier sa décision de rétractation par email ou courrier recommandé.<br />
-                Les produits retournés doivent être dans leur état et emballage d’origine. Les frais de retour sont à la charge du Client, sauf en cas de produit défectueux ou erreur de notre part.
+                Conformément à la législation en vigueur, le Client bénéficie d&apos;un droit de rétractation de 14 jours à compter de la réception des produits, sans avoir à justifier de motifs ni à payer de pénalités. Pour exercer ce droit, le Client doit nous notifier sa décision de rétractation par email ou courrier recommandé.<br />
+                Les produits retournés doivent être dans leur état et emballage d&apos;origine. Les frais de retour sont à la charge du Client, sauf en cas de produit défectueux ou erreur de notre part.
             </p>
             </div>
 
             <div className="mb-6">
             <h2 className="text-2xl font-semibold mb-2">7. Garanties</h2>
             <p className="leading-relaxed">
-                Garantie légale de conformité : Le Client bénéficie de la garantie légale de conformité pour tous les produits achetés sur le Site. En cas de non-conformité, le Client peut demander la réparation, le remplacement ou l'échange du produit.<br />
+                Garantie légale de conformité : Le Client bénéficie de la garantie légale de conformité pour tous les produits achetés sur le Site. En cas de non-conformité, le Client peut demander la réparation, le remplacement ou l&apos;échange du produit.<br />
                 Garantie des vices cachés : Le Client bénéficie également de la garantie des vices cachés, permettant un échange ou un remboursement si un défaut non apparent du produit est constaté.
             </p>
             </div>
@@ -77,7 +77,7 @@ export default function CGV(){
             <div className="mb-6">
             <h2 className="text-2xl font-semibold mb-2">8. Responsabilité</h2>
             <p className="leading-relaxed">
-                Nous nous engageons à fournir des produits conformes et de qualité. Toutefois, notre responsabilité ne saurait être engagée en cas d’utilisation incorrecte des produits, de non-respect des instructions d’utilisation, ou en cas de force majeure.<br />
+                Nous nous engageons à fournir des produits conformes et de qualité. Toutefois, notre responsabilité ne saurait être engagée en cas d&apos;utilisation incorrecte des produits, de non-respect des instructions d&apos;utilisation, ou en cas de force majeure.<br />
                 Le Site contient des informations et liens externes, mais nous déclinons toute responsabilité quant à leur contenu et leur fiabilité.
             </p>
             </div>
