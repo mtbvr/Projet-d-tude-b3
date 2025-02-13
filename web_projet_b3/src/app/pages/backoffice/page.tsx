@@ -33,17 +33,28 @@ const Page = () => {
     const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
     const [selectedCategorie, setSelectedCategorie] = useState<Categorie | null>(null);
 
+    const fetchCategories = async () => {
+        try {
+            const response = await axios.get('/api/products/categorie/get');
+            setCategorie(response.data);
+        } catch (error) {
+            console.error("Erreur lors de la recherche d'infos produits:", error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
     const handleAddCategorie = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setLoading(true);
         const name = (document.getElementById('categorieName') as HTMLInputElement)?.value;
         const description = (document.getElementById('categorieDescription') as HTMLInputElement)?.value;
 
-        const newAddress = await addCategorie(name, description);
+        const newCategorie = await addCategorie(name, description);
 
-        if (newAddress) {
-            console.log(newAddress);
-            window.location.reload();
+        if (newCategorie) {
+            await fetchCategories();
+            setShowAddCategorieModal(false);
         } else {
             setLoading(false)
         }
@@ -61,18 +72,19 @@ const Page = () => {
             const name = (document.getElementById('editCategorieName') as HTMLInputElement)?.value;
             const description = (document.getElementById('editCategorieDescription') as HTMLInputElement)?.value;
             await axios.post(`/api/products/categorie/edit`, {id_categorie, name, description});
-            window.location.reload();
+            await fetchCategories();
+            setShowEditCategorieModal(false);
         } catch (error) {
             console.error('Erreur edit de la catégorie:', error);
             setLoading(false);
         }
     }
 
-    const handleDelete = async ( id: number) => {
+    const handleDelete = async (id: number) => {
         setLoading(true);
         try {
             await axios.post(`/api/products/categorie/delete`, {id});
-            window.location.reload();
+            await fetchCategories();
         } catch (error) {
             console.error('Erreur lors de la suppression de la catégorie:', error);
             setLoading(false);
@@ -81,19 +93,7 @@ const Page = () => {
 
     useEffect(() => {
         if (session?.user.isAdmin) {
-            const fetchProdutcs = async () => {
-                try {
-                    const categorie = await axios.get('/api/products/categorie/get');
-                    setCategorie(categorie.data);
-                } catch (error) {
-                    console.error("Erreur lors de la recherche d'infos produits:", error);
-                } finally { 
-                    setLoading(false);
-                }
-
-            };
-
-            fetchProdutcs();
+            fetchCategories();
         } else {
             window.location.href = '/pages/login';
         }
@@ -102,7 +102,6 @@ const Page = () => {
     if (!session) {
         return null;
     }
-
 
     return (
         <main>

@@ -1,6 +1,6 @@
 import CredentialsProvider from "next-auth/providers/credentials";
 import { compare } from "bcrypt-ts";
-import { sql } from "@vercel/postgres";
+import supabase from '@/supabaseClient'; // Assurez-vous que le chemin est correct
 import { NextAuthOptions, Session, User } from "next-auth";
 import { JWT } from "next-auth/jwt";
 
@@ -17,15 +17,21 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        const result = await sql`
-          SELECT id, firstname, lastname, email, password, "isAdmin" FROM "User" WHERE email = ${credentials.email};
-        `;
+        const { data: users, error } = await supabase
+          .from('User')
+          .select('id, firstname, lastname, email, password, isAdmin')
+          .eq('email', credentials.email);
 
-        if (result.rowCount === 0) {
+        if (error) {
+          console.error('Erreur lors de la récupération des utilisateurs:', error);
           return null;
         }
 
-        const user = result.rows[0];
+        if (!users || users.length === 0) {
+          return null;
+        }
+
+        const user = users[0];
 
         const passwordsMatch = await compare(credentials.password, user.password);
         if (!passwordsMatch) {

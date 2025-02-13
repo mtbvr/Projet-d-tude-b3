@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { sql } from '@vercel/postgres';
+import supabase from '@/supabaseClient'; // Assurez-vous que le chemin est correct
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,18 +9,22 @@ export async function POST(request: NextRequest) {
       return new NextResponse(JSON.stringify({ error: 'Tous les champs sont requis' }), { status: 400 });
     }
 
-    const result = await sql`
-      UPDATE "Categories"
-      SET name = ${name}, description = ${description}
-      WHERE id = ${id_categorie}
-      RETURNING id;
-    `;
+    const { data, error } = await supabase
+      .from('Categories')
+      .update({ name, description })
+      .eq('id', id_categorie)
+      .select('id');
 
-    if (result.rowCount === 0) {
+    if (error) {
+      console.error('Erreur lors de la mise à jour de la catégorie:', error);
+      return new NextResponse(JSON.stringify({ error: 'Erreur lors de la mise à jour de la catégorie' }), { status: 500 });
+    }
+
+    if (data.length === 0) {
       return new NextResponse(JSON.stringify({ error: 'Catégorie non trouvée' }), { status: 404 });
     }
 
-    return new NextResponse(JSON.stringify({ success: 'Catégorie mise à jour avec succès', id: result.rows[0].id }), { status: 200 });
+    return new NextResponse(JSON.stringify({ success: 'Catégorie mise à jour avec succès', id: data[0].id }), { status: 200 });
 
   } catch (error) {
     console.error('Erreur lors de la mise à jour de la catégorie:', error);

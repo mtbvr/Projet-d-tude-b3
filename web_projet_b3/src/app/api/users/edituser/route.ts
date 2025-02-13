@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { sql } from '@vercel/postgres';
+import supabase from '@/supabaseClient'; 
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,18 +9,22 @@ export async function POST(request: NextRequest) {
       return new NextResponse(JSON.stringify({ error: 'Tous les champs sont requis' }), { status: 400 });
     }
 
-    const result = await sql`
-      UPDATE "User"
-      SET firstname = ${firstname}, lastname = ${lastname}, email = ${email}
-      WHERE id = ${id_user}
-      RETURNING id;
-    `;
+    const { data, error } = await supabase
+      .from('User')
+      .update({ firstname, lastname, email })
+      .eq('id', id_user)
+      .select('id');
 
-    if (result.rowCount === 0) {
+    if (error) {
+      console.error('Erreur lors de la mise à jour de l\'utilisateur:', error);
+      return new NextResponse(JSON.stringify({ error: 'Erreur lors de la mise à jour de l\'utilisateur' }), { status: 500 });
+    }
+
+    if (data.length === 0) {
       return new NextResponse(JSON.stringify({ error: 'Utilisateur non trouvé' }), { status: 404 });
     }
 
-    return new NextResponse(JSON.stringify({ success: 'Utilisateur mis à jour avec succès', id: result.rows[0].id }), { status: 200 });
+    return new NextResponse(JSON.stringify({ success: 'Utilisateur mis à jour avec succès', id: data[0].id }), { status: 200 });
 
   } catch (error) {
     console.error('Erreur lors de la mise à jour de l\'utilisateur:', error);

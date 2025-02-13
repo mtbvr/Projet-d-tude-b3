@@ -1,8 +1,8 @@
-import { sql } from '@vercel/postgres';
 import { NextRequest, NextResponse } from 'next/server';
 import { genSaltSync, hashSync } from 'bcrypt-ts';
 import { v4 as uuidv4 } from 'uuid';
 import axios from 'axios';
+import supabase from '@/supabaseClient'; // Assurez-vous que le chemin est correct
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,13 +17,19 @@ export async function POST(request: NextRequest) {
 
     const verificationToken = uuidv4();
 
-    const result = await sql`
-      INSERT INTO "User" (firstname, lastname, email, password, "verificationToken")
-      VALUES (${firstname}, ${lastname}, ${email}, ${hashedPassword}, ${verificationToken})
-      RETURNING id;
-    `;
+    const { data, error } = await supabase
+      .from('User')
+      .insert([
+        { firstname, lastname, email, password: hashedPassword, verificationToken }
+      ])
+      .select('id');
 
-    const userId = result.rows[0]?.id;
+    if (error) {
+      console.error('Erreur lors de la création de l\'utilisateur:', error);
+      return new NextResponse(JSON.stringify({ error: 'Erreur lors de la création de l\'utilisateur' }), { status: 500 });
+    }
+
+    const userId = data[0]?.id;
     if (!userId) {
       return new NextResponse(JSON.stringify({ error: 'Erreur lors de la création de l\'utilisateur' }), { status: 500 });
     }

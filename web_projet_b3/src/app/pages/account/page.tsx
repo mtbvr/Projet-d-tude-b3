@@ -82,21 +82,20 @@ export default function Page() {
     const [showAddPaymentModal, setShowAddPaymentModal] = useState(false);
     const [loading, setLoading] = useState(true);
 
+    const fetchUserInfo = async (id: string) => {
+        try {
+            const response = await axios.post('/api/users/getuserbyid', { id });
+            setUserInfo(response.data);
+            console.log(response.data);
+        } catch (error) {
+            console.error("Erreur lors de la recherche d'infos utilisateur:", error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
     useEffect(() => {
         if (session) {
-            const fetchUserInfo = async (id: string) => {
-                try {
-                    const response = await axios.post('/api/users/getuserbyid', { id });
-                    setUserInfo(response.data);
-                    console.log(response.data);
-                } catch (error) {
-                    console.error("Erreur lors de la recherche d'infos utilisateur:", error);
-                } finally { 
-                    setLoading(false);
-                }
-
-            };
-
             fetchUserInfo(session.user.id);
         } else {
             window.location.href = '/pages/login';
@@ -107,7 +106,7 @@ export default function Page() {
         return null;
     }
 
-    const handleEditUser = async (e: React.FormEvent<HTMLFormElement>) =>{
+    const handleEditUser = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setLoading(true);
         const firstname = (document.getElementById("firstname") as HTMLInputElement)?.value;
@@ -156,7 +155,8 @@ export default function Page() {
     
             if (newUser && newUser.data && newUser.data.success) {
                 console.log(newUser);
-                window.location.reload();
+                await fetchUserInfo(session.user.id);
+                setShowEditProfileModal(false);
             } else {
                 setLoading(false);
             }
@@ -178,13 +178,13 @@ export default function Page() {
 
         if (newAddress) {
             console.log(newAddress);
-            window.location.reload();
+            await fetchUserInfo(session.user.id);
+            setShowAddAddressModal(false);
         } else {
             setLoading(false)
         }
     }
 
-    console.log('info de session:', session.user)
     
     return (
         <main>
