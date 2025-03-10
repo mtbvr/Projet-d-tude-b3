@@ -1,6 +1,6 @@
 import CredentialsProvider from "next-auth/providers/credentials";
 import { compare } from "bcrypt-ts";
-import supabase from '@/supabaseClient'; // Assurez-vous que le chemin est correct
+import supabase from '@/supabaseClient'; 
 import { NextAuthOptions, Session, User } from "next-auth";
 import { JWT } from "next-auth/jwt";
 

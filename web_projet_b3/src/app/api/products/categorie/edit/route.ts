@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import supabase from '@/supabaseClient'; // Assurez-vous que le chemin est correct
+import supabase from '@/supabaseClient';
 
 export async function POST(request: NextRequest) {
   try {
