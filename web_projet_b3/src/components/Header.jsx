@@ -18,20 +18,37 @@ export default function Header() {
     };
 
     return (
-        <header className="flex items-center justify-between shadow-header bg-component-bg z-99">
-            <Link href="/" className='mx-auto'>
-                <Image alt='Logo de Cyna' src='/images/logo-cyna-header.png' width={194} height={51} className='my-[9px]'/>
-            </Link>
-            <button
-                className="block pr-4 hover:scale-125 transition-transform duration-200"
-                onClick={toggleMenu}
-                aria-label="Toggle menu"
-            >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-12 h-12 text-black">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                </svg>
-            </button>
-
+        <header className="flex items-center justify-between shadow-header bg-component-bg z-99 w-full">
+            <div className='flex flex-row w-full justify-between'>
+                <Link href="/">
+                    <Image alt='Logo de Cyna' src='/images/logo-cyna-header.png' width={194} height={51} className='my-[9px] ml-[40px]'/>
+                </Link>
+                <div className='flex flex-row'>
+                    <button
+                        className='block pr-4 hover:scale-125 transition-transform duration-200'
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="50px" height="50px" viewBox="0 0 24 24" fill="none">
+                            <path d="M15.7955 15.8111L21 21M18 10.5C18 14.6421 14.6421 18 10.5 18C6.35786 18 3 14.6421 3 10.5C3 6.35786 6.35786 3 10.5 3C14.6421 3 18 6.35786 18 10.5Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <button
+                        className="block pr-4 hover:scale-125 transition-transform duration-200"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="50px" height="50px" viewBox="0 0 24 24" fill="none">
+                            <path d="M20 10L18.5145 17.4276C18.3312 18.3439 18.2396 18.8021 18.0004 19.1448C17.7894 19.447 17.499 19.685 17.1613 19.8326C16.7783 20 16.3111 20 15.3766 20H8.62337C7.6889 20 7.22166 20 6.83869 19.8326C6.50097 19.685 6.2106 19.447 5.99964 19.1448C5.76041 18.8021 5.66878 18.3439 5.48551 17.4276L4 10M20 10H18M20 10H21M4 10H3M4 10H6M6 10H18M6 10L9 4M18 10L15 4M9 13V16M12 13V16M15 13V16" stroke="#000000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                    </button>
+                    <button
+                        className="block pr-4 hover:scale-125 transition-transform duration-200"
+                        onClick={toggleMenu}
+                        aria-label="Toggle menu"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-12 h-12 text-black">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
             <div className={`fixed top-0 right-0 w-2/3 max-w-xs h-full bg-white shadow-lg transform ${menuOpen ? 'translate-x-0' : 'translate-x-full'} transition-transform duration-300 ease-in-out z-50`}>
                 <button
                     className="absolute top-4 right-4 text-black hover:bg-red-error rounded-lg hover:border-[1px] hover:border-black"
@@ -110,7 +127,6 @@ export default function Header() {
                     )}
                 </div>
             </div>
-            )
         </header>
         );
     }
