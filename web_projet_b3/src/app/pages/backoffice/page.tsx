@@ -18,7 +18,9 @@ interface Service {
     price: number;
     quantity: number;
     disponible: boolean;
-    categories: Array<string>;
+    categories: string[];
+    imageUrl?: string; 
+    caracTechniques: string[];
 }
 
 
@@ -32,16 +34,29 @@ const addCategorie = async (name:string, description:string) => {
     }
 }
 
-const addProduct = async (name:string, description:string, price:string, categorieList:Array<string>) => {
+const addProduct = async (
+    name: string,
+    description: string,
+    price: string,
+    categorieList: Array<string>,
+    caracList: Array<string>,
+    image: string
+  ) => {
     try {
-        console.log(price)
-        const reponse = await axios.post('/api/products/products/add', {name, description, price, categorieList})
-        return reponse;
+      const response = await axios.post('/api/products/products/add', {
+        name,
+        description,
+        price,
+        categorieList,
+        caracList,
+        image
+      });
+      return response;
     } catch (error) {
-        console.error('Erreur lors de l\'ajout de la nouvelle categorie:', error);
-        return false;
+      console.error('Erreur lors de l\'ajout du produit:', error);
+      return false;
     }
-}
+  };
 
 
 const Page = () => {
@@ -57,6 +72,16 @@ const Page = () => {
     const [selectedCategorie, setSelectedCategorie] = useState<Categorie | null>(null);
     const [selectedService, setSelectedService] = useState<Service | null>(null);
     const [categorySelectors, setCategorySelectors] = useState<Array<{ value: string | undefined }>>([{ value: undefined }]);
+    const [caracInputs, setCaracInputs] = useState<Array<{ value: string }>>([{ value: '' }]);
+    const [selectedImage, setSelectedImage] = useState<File | null>(null);
+
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+        setSelectedImage(file);
+        }
+    };
+
 
     const handleAddCategorySelector = () => {
         if (categorySelectors.length < categorie.length) {
@@ -70,6 +95,22 @@ const Page = () => {
         }
     };
 
+    const handleAddCaracInput = () => {
+        setCaracInputs([...caracInputs , { value: "" }])
+    }
+
+    const handleRemoveCaracInput = () => {
+        if (caracInputs.length > 1) {
+          setCaracInputs(caracInputs.slice(0, caracInputs.length - 1));
+        }
+      };
+    
+    const handleInputChange = (index: number, newValue: string) => {
+        const newCaracInputs = [...caracInputs];
+        newCaracInputs[index].value = newValue;
+        setCaracInputs(newCaracInputs);
+    };
+    
     const handleCategoryChange = (index: number, value: string) => {
         const updatedSelectors = [...categorySelectors];
         updatedSelectors[index] = { value };
@@ -121,25 +162,54 @@ const Page = () => {
         }
     }
 
-    const handleAddProduct = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        setLoading(true);
-        const name = (document.getElementById('productName') as HTMLInputElement)?.value;
-        const description = (document.getElementById('productDescription') as HTMLInputElement)?.value;
-        const price = (document.getElementById('productPrice') as HTMLInputElement)?.value;
-
-        const categorySelectors = document.querySelectorAll('select[id^="productCategory"]');
-        const categorieListe = Array.from(categorySelectors).map(selector => (selector as HTMLSelectElement).value);
-
-        const newProduct = await addProduct(name, description, price, categorieListe)
-
-        if (newProduct) {
-            await fetchServices();
-            setShowAddProductModal(false);
-        } else {
-            setLoading(false)
-        }
+    // helper pour convertir un fichier en base64
+const convertFileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
+  };
+  
+  const handleAddProduct = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    
+    const name = (document.getElementById('productName') as HTMLInputElement)?.value;
+    const description = (document.getElementById('productDescription') as HTMLInputElement)?.value;
+    const price = (document.getElementById('productPrice') as HTMLInputElement)?.value;
+    
+    const categorySelectors = document.querySelectorAll('select[id^="productCategory"]');
+    const categorieListe = Array.from(categorySelectors).map(
+      selector => (selector as HTMLSelectElement).value
+    );
+    
+    const caracList = caracInputs.map(input => input.value);
+    
+    let imageBase64 = "";
+    const imageInput = document.getElementById('productImage') as HTMLInputElement;
+    if (imageInput && imageInput.files && imageInput.files.length > 0) {
+      const file = imageInput.files[0];
+      imageBase64 = await convertFileToBase64(file);
     }
+    
+    const newProduct = await addProduct(
+      name,
+      description,
+      price,
+      categorieListe,
+      caracList,
+      imageBase64
+    );
+    
+    if (newProduct) {
+      await fetchServices();
+      setShowAddProductModal(false);
+    } else {
+      setLoading(false);
+    }
+  };
 
     const handleShowEditCategorie = (categorie: Categorie) => {
         setSelectedCategorie(categorie);
@@ -166,26 +236,50 @@ const Page = () => {
         }
     }
 
-    const handleEditProduct = async (e: React.FormEvent<HTMLFormElement>, id_service:number) => {
-        e.preventDefault()
+    const handleEditProduct = async (e: React.FormEvent<HTMLFormElement>, id_service: number) => {
+        e.preventDefault();
         setLoading(true);
         try {
-            const name = (document.getElementById('productNameEdit') as HTMLInputElement)?.value;
-            const description = (document.getElementById('productDescriptionEdit') as HTMLInputElement)?.value;
-            const price = (document.getElementById('productPriceEdit') as HTMLInputElement)?.value;
-
-            const categorySelectors = document.querySelectorAll('select[id^="productCategoryEdit"]');
-            const categorieList = Array.from(categorySelectors).map(selector => (selector as HTMLSelectElement).value);
-
-            await axios.post(`/api/products/products/edit`, {id_service, name, description, price, categorieList});
-            await fetchServices();
-            console.log(categorieList)
-            setShowEditServiceModal(false);
+          // Récupération des valeurs du formulaire
+          const name = (document.getElementById('productNameEdit') as HTMLInputElement)?.value;
+          const description = (document.getElementById('productDescriptionEdit') as HTMLInputElement)?.value;
+          const price = (document.getElementById('productPriceEdit') as HTMLInputElement)?.value;
+      
+          // Récupération des catégories
+          const categorySelectors = document.querySelectorAll('select[id^="productCategoryEdit"]');
+          const categorieList = Array.from(categorySelectors).map(
+            (selector) => (selector as HTMLSelectElement).value
+          );
+      
+          // Récupération des caractéristiques techniques à partir de votre state ("caracInputs")
+          const caracList = caracInputs.map((input) => input.value);
+      
+          // Récupération et conversion de l'image dans le champ d'édition
+          let imageBase64 = "";
+          const imageInput = document.getElementById('productImageEdit') as HTMLInputElement;
+          if (imageInput && imageInput.files && imageInput.files.length > 0) {
+            const file = imageInput.files[0];
+            imageBase64 = await convertFileToBase64(file);
+          }
+          
+          // Envoi de l'ensemble des données à l'API d'édition
+          await axios.post(`/api/products/products/edit`, {
+            id_service,
+            name,
+            description,
+            price,
+            categorieList,
+            caracList,
+            image: imageBase64  // si imageBase64 est vide, l'API pourra ignorer la mise à jour de l'image
+          });
+          
+          await fetchServices();
+          setShowEditServiceModal(false);
         } catch (error) {
-            console.error('Erreur edit du service:', error);
-            setLoading(false);
+          console.error('Erreur edit du service:', error);
+          setLoading(false);
         }
-    }
+      };
 
     const handleDelete = async (id: number) => {
         setLoading(true);
@@ -223,6 +317,8 @@ const Page = () => {
         if (selectedService && selectedService.categories) {
             const initialSelectors = selectedService.categories.map(category => ({ value: category }));
             setCategorySelectors(initialSelectors);
+            const caracInputs = selectedService.caracTechniques.map(name => ({ value: name }))
+            setCaracInputs(caracInputs)
         }
     }, [selectedService]);
 
@@ -321,8 +417,8 @@ const Page = () => {
                 )}
                 {/* Add Categorie Modal */}
                 {showAddCategorietModal && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-                        <div className="bg-white p-6 rounded-lg max-w-md w-[80%]">
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center overflow-auto">
+                    <div className="bg-white p-6 rounded-lg max-w-md w-[80%] max-h-[90vh] overflow-y-auto">
                             <h2 className="text-2xl font-semibold mb-4">Add new categorie</h2>
                             <form onSubmit={handleAddCategorie}>
                                 <div className="relative my-[30px] mx-auto md:w-[400px] w-[80%]">
@@ -355,8 +451,8 @@ const Page = () => {
 
                 {/* Edit Categorie Modal */}
                 {showEditCategorieModal && selectedCategorie && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-                        <div className="bg-white p-6 rounded-lg max-w-md w-[80%]">
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center overflow-auto">
+                    <div className="bg-white p-6 rounded-lg max-w-md w-[80%] max-h-[90vh] overflow-y-auto">
                             <h2 className="text-2xl font-semibold mb-4">Edit categorie</h2>
                             <form onSubmit={(e) => handleEditCategorie(e, selectedCategorie.id)}>
                                 <div className="relative my-[30px] mx-auto md:w-[400px] w-[80%]">
@@ -387,8 +483,8 @@ const Page = () => {
 
                 {/* Add Product Modal */}
                 {showAddProductModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-                    <div className="bg-white p-6 rounded-lg max-w-md w-[80%]">
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center overflow-auto">
+                    <div className="bg-white p-6 rounded-lg max-w-md w-[80%] max-h-[90vh] overflow-y-auto">
                     <h2 className="text-2xl font-semibold mb-4">Add new product</h2>
                     <form onSubmit={handleAddProduct}>
                         <div className="relative my-[30px] mx-auto md:w-[400px] w-[80%]">
@@ -445,86 +541,245 @@ const Page = () => {
                         <button type="button" className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded" onClick={handleAddCategorySelector}>Add Another Category</button>
                         </div>
 
-                        <div className="flex justify-end">
-                        <button type="button" className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded" onClick={() => setShowAddProductModal(false)}>Cancel</button>
-                        <button type="submit" className="bg-button-color hover:text-white text-black font-semibold py-2 px-4 rounded ml-2">Save</button>
-                        </div>
-                    </form>
-                    </div>
-                </div>
-                )}
-
-                {/* Edit Product Modal */}
-                {showEditServiceModal && selectedService && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-                    <div className="bg-white p-6 rounded-lg max-w-md w-[80%]">
-                    <h2 className="text-2xl font-semibold mb-4">Add new product</h2>
-                    <form onSubmit={(e) => handleEditProduct(e, selectedService.id)}>
-                        <div className="relative my-[30px] mx-auto md:w-[400px] w-[80%]">
-                        <input
-                            id="productNameEdit"
-                            type="text"
-                            className="w-full input__field border-0 border-b-2 outline-none text-base text-text-input py-1 pr-8 bg-transparent transition-colors duration-200 border-b-secondary-input"
-                            placeholder="New product name"
-                            required
-                            defaultValue={selectedService.name}
-                        />
-                        <label htmlFor="productName" className="input__label absolute transition-all">Product name</label>
-                        </div>
-                        <div className="relative my-[30px] mx-auto md:w-[400px] w-[80%]">
-                        <textarea
-                            id="productDescriptionEdit"
-                            className="w-full input__field border-0 border-b-2 outline-none text-base text-text-input py-1 pr-8 bg-transparent transition-colors duration-200 border-b-secondary-input"
-                            placeholder="New product description"
-                            required
-                            defaultValue={selectedService.description}
-                        />
-                        <label htmlFor="productDescription" className="input__label absolute transition-all">Product description</label>
-                        </div>
-                        <div className="relative my-[30px] mx-auto md:w-[400px] w-[80%]">
-                        <input
-                            id="productPriceEdit"
-                            type="number"
-                            className="w-full input__field border-0 border-b-2 outline-none text-base text-text-input py-1 pr-8 bg-transparent transition-colors duration-200 border-b-secondary-input"
-                            placeholder="New product price"
-                            required
-                            defaultValue={selectedService.price}
-                        />
-                        <label htmlFor="productPrice" className="input__label absolute transition-all">Product price</label>
-                        </div>
-                        
-                        {/* Category Selectors */}
-                        {categorySelectors.map((selector, index) => (
-                            <div className="relative my-[30px] mx-auto md:w-[400px] w-[80%]" key={index}>
-                                <select
-                                    id={`productCategoryEdit-${index}`}
-                                    className="w-full input__field border-0 border-b-2 outline-none text-base text-text-input py-1 pr-8 bg-transparent transition-colors duration-200 border-b-secondary-input"
-                                    value={selector.value ?? ''}
-                                    onChange={(e) => handleCategoryChange(index, e.target.value)}
-                                    required
-                                >
-                                    <option value="" disabled>Select category</option>
-                                    {getAvailableCategories(index).map((element) => (
-                                        <option key={element.id} value={element.id}>{element.name}</option>
-                                    ))}
-                                </select>
-                                <label htmlFor={`productCategory-${index}`} className="input__label absolute transition-all">Product category</label>
+                       {/* Carac technique selector */}
+                        {caracInputs.map((input, index) => (
+                            <div key={index} className="relative my-[30px] mx-auto md:w-[400px] w-[80%]">
+                            <input
+                                id={`caracTechnique-${index}`}
+                                type="text"
+                                value={input.value}
+                                className="w-full input__field border-0 border-b-2 outline-none text-base text-text-input py-1 pr-8 bg-transparent transition-colors duration-200 border-b-secondary-input"
+                                placeholder="Caracteristique technique"
+                                required
+                                onChange={(e) => handleInputChange(index, e.target.value)}
+                            />
+                            <label htmlFor={`caracTechnique-${index}`} className="input__label absolute transition-all">
+                                Caracteristique technique
+                            </label>
                             </div>
                         ))}
 
-                        <div className="flex justify-between mb-4">
-                        <button type="button" className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded" onClick={handleDeleteLastCategorySelector}>Delete Last Category</button>
-                        <button type="button" className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded" onClick={handleAddCategorySelector}>Add Another Category</button>
+
+
+                        <div className="flex justify-between mb-4  gap-x-2">
+                        <button type="button" className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded" onClick={handleRemoveCaracInput}>Supprimer une caracteristique</button>
+                        <button type="button" className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded" onClick={handleAddCaracInput}>Ajouter une caracteristique</button>
                         </div>
 
+                        {/* Product Image */}
+                        <div className="relative my-[30px] mx-auto md:w-[400px] w-[80%]">
+                            <input
+                            id="productImage"
+                            type="file"
+                            accept="image/*"
+                            className="w-full"
+                            onChange={handleImageChange}
+                            required
+                            />
+                            <label htmlFor="productImage" className="input__label absolute transition-all">
+                            Product image
+                            </label>
+                        </div>
+                        {selectedImage && (
+                            <div className="my-4">
+                            <img
+                                src={URL.createObjectURL(selectedImage)}
+                                alt="Aperçu du produit"
+                                className="max-h-48 mx-auto"
+                            />
+                            </div>
+                        )}
+
+
+
                         <div className="flex justify-end">
-                        <button type="button" className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded" onClick={() => setShowEditServiceModal(false)}>Cancel</button>
+                        <button type="button" className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded" onClick={() => { 
+                            setSelectedImage(null)
+                            setShowAddProductModal(false) }}>Cancel</button>
                         <button type="submit" className="bg-button-color hover:text-white text-black font-semibold py-2 px-4 rounded ml-2">Save</button>
                         </div>
                     </form>
                     </div>
                 </div>
                 )}
+
+            {/* Edit Product Modal */}
+            {showEditServiceModal && selectedService && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center overflow-auto">
+                <div className="bg-white p-6 rounded-lg max-w-md w-[80%] max-h-[90vh] overflow-y-auto">
+                <h2 className="text-2xl font-semibold mb-4">Edit Product</h2>
+
+                <form onSubmit={(e) => handleEditProduct(e, selectedService.id)}>
+                    <div className="relative my-[30px] mx-auto md:w-[400px] w-[80%]">
+                    <input
+                        id="productNameEdit"
+                        type="text"
+                        className="w-full input__field border-0 border-b-2 outline-none text-base text-text-input py-1 pr-8 bg-transparent transition-colors duration-200 border-b-secondary-input"
+                        placeholder="New product name"
+                        required
+                        defaultValue={selectedService.name}
+                    />
+                    <label htmlFor="productNameEdit" className="input__label absolute transition-all">
+                        Product name
+                    </label>
+                    </div>
+
+                    <div className="relative my-[30px] mx-auto md:w-[400px] w-[80%]">
+                    <textarea
+                        id="productDescriptionEdit"
+                        className="w-full input__field border-0 border-b-2 outline-none text-base text-text-input py-1 pr-8 bg-transparent transition-colors duration-200 border-b-secondary-input"
+                        placeholder="New product description"
+                        required
+                        defaultValue={selectedService.description}
+                    />
+                    <label htmlFor="productDescriptionEdit" className="input__label absolute transition-all">
+                        Product description
+                    </label>
+                    </div>
+
+                    <div className="relative my-[30px] mx-auto md:w-[400px] w-[80%]">
+                    <input
+                        id="productPriceEdit"
+                        type="number"
+                        className="w-full input__field border-0 border-b-2 outline-none text-base text-text-input py-1 pr-8 bg-transparent transition-colors duration-200 border-b-secondary-input"
+                        placeholder="New product price"
+                        required
+                        defaultValue={selectedService.price}
+                    />
+                    <label htmlFor="productPriceEdit" className="input__label absolute transition-all">
+                        Product price
+                    </label>
+                    </div>
+
+                    {/* Category Selectors */}
+                    {categorySelectors.map((selector, index) => (
+                    <div className="relative my-[30px] mx-auto md:w-[400px] w-[80%]" key={index}>
+                        <select
+                        id={`productCategoryEdit-${index}`}
+                        className="w-full input__field border-0 border-b-2 outline-none text-base text-text-input py-1 pr-8 bg-transparent transition-colors duration-200 border-b-secondary-input"
+                        value={selector.value ?? ''}
+                        onChange={(e) => handleCategoryChange(index, e.target.value)}
+                        required
+                        >
+                        <option value="" disabled>
+                            Select category
+                        </option>
+                        {getAvailableCategories(index).map((element) => (
+                            <option key={element.id} value={element.id}>
+                            {element.name}
+                            </option>
+                        ))}
+                        </select>
+                        <label htmlFor={`productCategoryEdit-${index}`} className="input__label absolute transition-all">
+                        Product category
+                        </label>
+                    </div>
+                    ))}
+
+                    <div className="flex justify-between mb-4">
+                    <button
+                        type="button"
+                        className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded"
+                        onClick={handleDeleteLastCategorySelector}
+                    >
+                        Delete Last Category
+                    </button>
+                    <button
+                        type="button"
+                        className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded"
+                        onClick={handleAddCategorySelector}
+                    >
+                        Add Another Category
+                    </button>
+                    </div>
+
+                    {/* Carac technique selector */}
+                    {caracInputs.map((input, index) => (
+                    <div key={index} className="relative my-[30px] mx-auto md:w-[400px] w-[80%]">
+                        <input
+                        id={`caracTechnique-${index}`}
+                        type="text"
+                        value={input.value}
+                        className="w-full input__field border-0 border-b-2 outline-none text-base text-text-input py-1 pr-8 bg-transparent transition-colors duration-200 border-b-secondary-input"
+                        placeholder="Caracteristique technique"
+                        required
+                        onChange={(e) => handleInputChange(index, e.target.value)}
+                        />
+                        <label htmlFor={`caracTechnique-${index}`} className="input__label absolute transition-all">
+                        Caracteristique technique
+                        </label>
+                    </div>
+                    ))}
+
+                    <div className="flex justify-between mb-4 gap-x-2">
+                    <button
+                        type="button"
+                        className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded"
+                        onClick={handleRemoveCaracInput}
+                    >
+                        Supprimer une caracteristique
+                    </button>
+                    <button
+                        type="button"
+                        className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded"
+                        onClick={handleAddCaracInput}
+                    >
+                        Ajouter une caracteristique
+                    </button>
+                    </div>
+
+                    {/* Product Image */}
+                    <div className="relative my-[30px] mx-auto md:w-[400px] w-[80%]">
+                    <input
+                        id="productImageEdit"
+                        type="file"
+                        accept="image/*"
+                        className="w-full"
+                        onChange={handleImageChange}
+                        // Vous pouvez retirer "required" ici en mode édition si ce n'est pas obligatoire de changer l'image
+                    />
+                    <label htmlFor="productImageEdit" className="input__label absolute transition-all">
+                        Product image
+                    </label>
+                    </div>
+                    <div className="my-4">
+                    {selectedImage? (
+
+                        <img
+                        src={URL.createObjectURL(selectedImage)}
+                        alt="Aperçu du produit"
+                        className="max-h-48 mx-auto"
+                        />
+
+                    ) : selectedService.imageUrl ? (
+                        <img
+                        src={selectedService.imageUrl}
+                        alt="Image actuelle du produit"
+                        className="max-h-48 mx-auto"
+                        />
+                    ) : null}
+                    </div>
+
+
+                    <div className="flex justify-end">
+                    <button
+                        type="button"
+                        className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded"
+                        onClick={() =>  {
+                            setShowEditServiceModal(false);
+                            setSelectedImage(null);
+                        }}
+                    >
+                        Cancel
+                    </button>
+                    <button type="submit" className="bg-button-color hover:text-white text-black font-semibold py-2 px-4 rounded ml-2">
+                        Save
+                    </button>
+                    </div>
+                </form>
+                </div>
+            </div>
+            )}
 
             </section>
 
